@@ -8,7 +8,6 @@
 		<version>1.0.0</version>
 	</parent>
 
-	<groupId>com.adambarreiro.docker</groupId>
 	<artifactId>docker-java-client</artifactId>
 	<version>1.0.0</version>
 	<dependencies>
@@ -22,11 +21,6 @@
 			<artifactId>httpclient</artifactId>
 			<version>4.5.13</version>
 		</dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
 </project>

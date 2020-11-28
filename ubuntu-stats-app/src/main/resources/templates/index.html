@@ -17,12 +17,8 @@
             <p><button @click="stop">Stop container</button></p>
         </div>
         <div id="shell">
-            <p>{{placeholder}}</p>
-            <p>
-            <span v-for="line in stats">
-                {{line}}<br/>
-            </span>
-            </p>
+            <p>{{ placeholder }}</p>
+            <p v-html="stats"></p>
         </div>
     </div>
 </body>

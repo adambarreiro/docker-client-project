@@ -52,14 +52,6 @@
 	<build>
 		<plugins>
 			<plugin>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>3.1.1</version>
-				<configuration>
-					<includeTestSourceDirectory>true</includeTestSourceDirectory>
-					<violationSeverity>warning</violationSeverity>
-				</configuration>
-			</plugin>
-			<plugin>
 				<groupId>com.github.spotbugs</groupId>
 				<artifactId>spotbugs-maven-plugin</artifactId>
 				<version>4.1.4</version>

@@ -1,8 +1,7 @@
 .DS_Store
 
 !.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+*/**/target/
 
 .idea
 *.iws

@@ -1,7 +1,0 @@
-com/adambarreiro/docker/client/http/UnixConnectionSocketFactory.class
-com/adambarreiro/docker/client/Docker.class
-com/adambarreiro/docker/client/actions/Containers.class
-com/adambarreiro/docker/client/actions/Execs.class
-com/adambarreiro/docker/client/http/DockerHttpClient.class
-com/adambarreiro/docker/client/http/HttpClientConfiguration.class
-com/adambarreiro/docker/client/actions/Images.class

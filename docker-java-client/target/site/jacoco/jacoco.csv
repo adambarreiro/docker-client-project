@@ -1,0 +1,8 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+docker-java-client,com.adambarreiro.docker.client.actions,Execs,59,0,2,0,15,0,4,0,3,0
+docker-java-client,com.adambarreiro.docker.client.actions,Images,72,0,2,0,14,0,4,0,3,0
+docker-java-client,com.adambarreiro.docker.client.actions,Containers,261,0,14,0,53,0,14,0,7,0
+docker-java-client,com.adambarreiro.docker.client,Docker,27,0,0,0,7,0,4,0,4,0
+docker-java-client,com.adambarreiro.docker.client.http,HttpClientConfiguration,35,0,0,0,13,0,2,0,2,0
+docker-java-client,com.adambarreiro.docker.client.http,DockerHttpClient,7,115,2,2,1,24,2,11,0,11
+docker-java-client,com.adambarreiro.docker.client.http,UnixConnectionSocketFactory,0,33,0,0,0,8,0,3,0,3

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Containers.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">docker-java-client</a> &gt; <a href="index.source.html" class="el_package">com.adambarreiro.docker.client.actions</a> &gt; <span class="el_source">Containers.java</span></div><h1>Containers.java</h1><pre class="source lang-java linenums">package com.adambarreiro.docker.client.actions;
+
+import com.adambarreiro.docker.client.http.DockerHttpClient;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Pattern;
+
+public class Containers {
+
+<span class="nc" id="L22">	private static final Logger LOGGER = LoggerFactory.getLogger(Containers.class);</span>
+	private static final String BASE_PATH = &quot;/containers&quot;;
+<span class="nc" id="L24">	private static final Pattern VALID_CONTAINER_NAME = Pattern.compile(&quot;^[a-zA-Z0-9][a-zA-Z0-9_.-]+$&quot;);</span>
+
+	private final DockerHttpClient dockerHttpClient;
+	private final ObjectMapper objectMapper;
+
+<span class="nc" id="L29">	public Containers(DockerHttpClient dockerHttpClient) {</span>
+<span class="nc" id="L30">		this.dockerHttpClient = dockerHttpClient;</span>
+<span class="nc" id="L31">		this.objectMapper = new ObjectMapper();</span>
+<span class="nc" id="L32">	}</span>
+
+	public Optional&lt;String&gt; create(String name, String image) throws IOException, URISyntaxException {
+<span class="nc" id="L35">		List&lt;NameValuePair&gt; queryParams = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L36" title="All 4 branches missed.">		if (name != null &amp;&amp; VALID_CONTAINER_NAME.matcher(name).matches()) {</span>
+<span class="nc" id="L37">			queryParams.add(new BasicNameValuePair(&quot;name&quot;, name));</span>
+		}
+<span class="nc" id="L39">		ObjectNode jsonBody = objectMapper.createObjectNode()</span>
+<span class="nc" id="L40">				.put(&quot;Image&quot;, image)</span>
+<span class="nc" id="L41">				.put(&quot;Tty&quot;, true)</span>
+<span class="nc" id="L42">				.put(&quot;OpenStdin&quot;, true);</span>
+
+<span class="nc" id="L44">		HttpResponse response = dockerHttpClient.post(BASE_PATH.concat(&quot;/create&quot;), queryParams,</span>
+<span class="nc" id="L45">				objectMapper.writer().writeValueAsString(jsonBody));</span>
+<span class="nc" id="L46">		int responseStatusCode = response.getStatusLine().getStatusCode();</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">		if (responseStatusCode != HttpStatus.SC_CREATED) {</span>
+<span class="nc" id="L48">			LOGGER.error(&quot;Error creating container {} with image {}, API returned status code {}&quot;, name, image, responseStatusCode);</span>
+<span class="nc" id="L49">			return Optional.empty();</span>
+		}
+
+<span class="nc" id="L52">		return Optional.of(new ObjectMapper().readTree(response.getEntity().getContent()).get(&quot;Id&quot;).asText());</span>
+	}
+
+	public Boolean start(final String containerId) throws IOException, URISyntaxException {
+<span class="nc" id="L56">		HttpResponse response = dockerHttpClient.post(BASE_PATH.concat(&quot;/&quot;).concat(containerId).concat(&quot;/start&quot;));</span>
+<span class="nc" id="L57">		int responseStatusCode = response.getStatusLine().getStatusCode();</span>
+
+<span class="nc bnc" id="L59" title="All 2 branches missed.">		if (responseStatusCode != HttpStatus.SC_NO_CONTENT) {</span>
+<span class="nc" id="L60">			LOGGER.error(&quot;Error starting container {}, API returned status code {}&quot;, containerId, responseStatusCode);</span>
+<span class="nc" id="L61">			return Boolean.FALSE;</span>
+		}
+<span class="nc" id="L63">		return Boolean.TRUE;</span>
+	}
+
+	public Optional&lt;String&gt; exec(final String containerId, final String command) throws IOException, URISyntaxException {
+<span class="nc" id="L67">		ObjectNode jsonBody = objectMapper.createObjectNode()</span>
+<span class="nc" id="L68">				.put(&quot;AttachStdin&quot;,false)</span>
+<span class="nc" id="L69">				.put(&quot;AttachStdout&quot;,true)</span>
+<span class="nc" id="L70">				.put(&quot;AttachStderr&quot;,false)</span>
+<span class="nc" id="L71">				.put(&quot;Tty&quot;, true)</span>
+<span class="nc" id="L72">				.set(&quot;Cmd&quot;, objectMapper.createArrayNode().add(command));</span>
+
+<span class="nc" id="L74">		HttpResponse response = dockerHttpClient.post(BASE_PATH.concat(&quot;/&quot;).concat(containerId).concat(&quot;/exec&quot;),</span>
+<span class="nc" id="L75">				objectMapper.writer().writeValueAsString(jsonBody));</span>
+<span class="nc" id="L76">		int responseStatusCode = response.getStatusLine().getStatusCode();</span>
+
+<span class="nc bnc" id="L78" title="All 2 branches missed.">		if (responseStatusCode != HttpStatus.SC_CREATED) {</span>
+<span class="nc" id="L79">			LOGGER.error(&quot;Error creating an execution for container {}, API returned status code {}&quot;, containerId, responseStatusCode);</span>
+<span class="nc" id="L80">			return Optional.empty();</span>
+		}
+<span class="nc" id="L82">		return Optional.of(new ObjectMapper().readTree(response.getEntity().getContent()).get(&quot;Id&quot;).asText());</span>
+	}
+
+	public Boolean stop(String containerId) throws IOException, URISyntaxException {
+<span class="nc" id="L86">		List&lt;NameValuePair&gt; queryParams = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L87">		queryParams.add(new BasicNameValuePair(&quot;id&quot;, containerId));</span>
+
+<span class="nc" id="L89">		HttpResponse response = dockerHttpClient.post(BASE_PATH.concat(&quot;/&quot;).concat(containerId).concat(&quot;/stop&quot;), queryParams);</span>
+<span class="nc" id="L90">		int responseStatusCode = response.getStatusLine().getStatusCode();</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">		if (responseStatusCode != HttpStatus.SC_NO_CONTENT) {</span>
+<span class="nc" id="L92">			LOGGER.error(&quot;Error stopping container {}, API returned status code {}&quot;, containerId, responseStatusCode);</span>
+<span class="nc" id="L93">			return Boolean.FALSE;</span>
+		}
+<span class="nc" id="L95">		return Boolean.TRUE;</span>
+	}
+
+	public Boolean prune() throws IOException, URISyntaxException {
+<span class="nc" id="L99">		HttpResponse response = dockerHttpClient.post(BASE_PATH.concat(&quot;/prune&quot;));</span>
+<span class="nc" id="L100">		int responseStatusCode = response.getStatusLine().getStatusCode();</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">		if (responseStatusCode != HttpStatus.SC_OK) {</span>
+<span class="nc" id="L102">			LOGGER.error(&quot;Error removing all containers, API returned status code {}&quot;, responseStatusCode);</span>
+<span class="nc" id="L103">			return Boolean.FALSE;</span>
+		}
+<span class="nc" id="L105">		return Boolean.TRUE;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

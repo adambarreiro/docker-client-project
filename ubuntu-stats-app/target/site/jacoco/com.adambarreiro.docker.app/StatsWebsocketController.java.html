@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StatsWebsocketController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ubuntu-stats-app</a> &gt; <a href="index.source.html" class="el_package">com.adambarreiro.docker.app</a> &gt; <span class="el_source">StatsWebsocketController.java</span></div><h1>StatsWebsocketController.java</h1><pre class="source lang-java linenums">package com.adambarreiro.docker.app;
+
+import com.adambarreiro.docker.client.Docker;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Controller;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+@Controller
+public class StatsWebsocketController {
+
+	private final SimpMessagingTemplate template;
+	private final Docker docker;
+	private final ExecutorService executorService;
+
+<span class="fc" id="L26">	private Future topCommand = null;;</span>
+<span class="fc" id="L27">	private String containerId = null;</span>
+<span class="fc" id="L28">	private BufferedReader execOutput = null;</span>
+
+	@Autowired
+<span class="fc" id="L31">	StatsWebsocketController(Docker docker, SimpMessagingTemplate template) {</span>
+<span class="fc" id="L32">		this.docker = docker;</span>
+<span class="fc" id="L33">		this.template = template;</span>
+<span class="fc" id="L34">		this.executorService = Executors.newScheduledThreadPool(1);</span>
+<span class="fc" id="L35">	}</span>
+
+	@MessageMapping(&quot;/start&quot;)
+	public void startSendingStats() throws IOException, URISyntaxException {
+<span class="nc bnc" id="L39" title="All 2 branches missed.">		if (this.topCommand == null) {</span>
+<span class="nc" id="L40">			this.execOutput = this.execTopInUbuntu();</span>
+<span class="nc" id="L41">			this.topCommand = this.executorService.submit(() -&gt; {</span>
+				while(true) {
+<span class="nc" id="L43">					execOutput.lines().forEach(line -&gt; template.convertAndSend(&quot;/docker/stats&quot;, line.replaceAll(&quot;[^\\u0000-\\uFFFF]&quot;, &quot;&quot;)));</span>
+				}
+			});
+		}
+<span class="nc" id="L47">	}</span>
+
+	@MessageMapping(&quot;/stop&quot;)
+	public void stop() throws IOException, URISyntaxException {
+<span class="nc bnc" id="L51" title="All 2 branches missed.">		if (topCommand != null) {</span>
+<span class="nc" id="L52">			topCommand.cancel(true);</span>
+<span class="nc" id="L53">			topCommand = null;</span>
+<span class="nc" id="L54">			removeContainers();</span>
+<span class="nc" id="L55">			this.execOutput.close();</span>
+<span class="nc" id="L56">			this.execOutput = null;</span>
+		}
+<span class="nc" id="L58">	}</span>
+
+	private BufferedReader execTopInUbuntu() throws IOException, URISyntaxException {
+<span class="nc" id="L61">		docker.images().pull(&quot;ubuntu&quot;,&quot;latest&quot;);</span>
+<span class="nc" id="L62">		this.containerId = docker.containers().create(&quot;ubuntu1&quot;,&quot;ubuntu:latest&quot;).orElseThrow();</span>
+<span class="nc" id="L63">		docker.containers().start(this.containerId);</span>
+<span class="nc" id="L64">		String execId = docker.containers().exec(containerId, &quot;top&quot;).orElseThrow();</span>
+<span class="nc" id="L65">		Optional&lt;InputStream&gt; is = docker.execs().start(execId);</span>
+<span class="nc" id="L66">		return new BufferedReader(new InputStreamReader(is.orElseThrow()));</span>
+	}
+
+	private void removeContainers() throws IOException, URISyntaxException {
+<span class="nc" id="L70">		docker.containers().stop(this.containerId);</span>
+<span class="nc" id="L71">		docker.containers().prune();</span>
+<span class="nc" id="L72">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

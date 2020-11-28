@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UnixConnectionSocketFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">docker-java-client</a> &gt; <a href="index.source.html" class="el_package">com.adambarreiro.docker.client.http</a> &gt; <span class="el_source">UnixConnectionSocketFactory.java</span></div><h1>UnixConnectionSocketFactory.java</h1><pre class="source lang-java linenums">package com.adambarreiro.docker.client.http;
+
+import jnr.unixsocket.UnixSocket;
+import jnr.unixsocket.UnixSocketAddress;
+import jnr.unixsocket.UnixSocketChannel;
+import org.apache.http.HttpHost;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.protocol.HttpContext;
+import org.springframework.util.Assert;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+
+/**
+ * Allows the Apache HttpClient to work with Unix sockets, as it's the only way to interact with the Docker engine.
+ */
+final class UnixConnectionSocketFactory implements ConnectionSocketFactory {
+
+	private final File unixSocket;
+
+<span class="fc" id="L23">	public UnixConnectionSocketFactory(final String unixSocketPath) {</span>
+<span class="fc" id="L24">		this.unixSocket = new File(unixSocketPath);</span>
+<span class="fc" id="L25">	}</span>
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Socket createSocket(final HttpContext context) throws IOException {
+<span class="fc" id="L32">		return UnixSocketChannel.open().socket();</span>
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Socket connectSocket(final int connectTimeout, final Socket socket,
+								final HttpHost host, final InetSocketAddress remoteAddress,
+								final InetSocketAddress localAddress, final HttpContext context)
+			throws IOException {
+<span class="fc" id="L43">		Assert.isTrue(socket instanceof UnixSocket, &quot;Unexpected socket type: &quot; + socket.getClass().toString());</span>
+<span class="fc" id="L44">		socket.setSoTimeout(connectTimeout);</span>
+<span class="fc" id="L45">		socket.getChannel().connect(</span>
+				new UnixSocketAddress(this.unixSocket)
+		);
+<span class="fc" id="L48">		return socket;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

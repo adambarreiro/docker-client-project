@@ -1,0 +1,36 @@
+body {
+    background-color: black;
+}
+
+h1 {
+    font-family: "Courier New";
+    color: white;
+}
+
+#app {
+    padding: 10px;
+    height: 100%;
+}
+
+#shell {
+    font-family: "Courier New";
+    background-color: black;
+    color: white;
+    width: 90%;
+}
+
+#buttons {
+    float: right;
+    width: 100px;
+}
+
+#buttons button {
+    padding: 10px;
+    width: 100%;
+    border: none;
+    background-color: #6aa7ff;
+}
+
+#buttons button:hover {
+    background-color: #8cc9ff;
+}

@@ -1,0 +1,7 @@
+/Users/adam/Documents/Desarrollo/vmware-challenge/docker-java-client/src/main/java/com/adambarreiro/docker/client/actions/Containers.java
+/Users/adam/Documents/Desarrollo/vmware-challenge/docker-java-client/src/main/java/com/adambarreiro/docker/client/Docker.java
+/Users/adam/Documents/Desarrollo/vmware-challenge/docker-java-client/src/main/java/com/adambarreiro/docker/client/actions/Images.java
+/Users/adam/Documents/Desarrollo/vmware-challenge/docker-java-client/src/main/java/com/adambarreiro/docker/client/actions/Execs.java
+/Users/adam/Documents/Desarrollo/vmware-challenge/docker-java-client/src/main/java/com/adambarreiro/docker/client/http/UnixConnectionSocketFactory.java
+/Users/adam/Documents/Desarrollo/vmware-challenge/docker-java-client/src/main/java/com/adambarreiro/docker/client/http/DockerHttpClient.java
+/Users/adam/Documents/Desarrollo/vmware-challenge/docker-java-client/src/main/java/com/adambarreiro/docker/client/http/HttpClientConfiguration.java

@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import javax.annotation.PreDestroy;
@@ -20,19 +19,17 @@ public class StatsWebsocketController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(StatsWebsocketController.class);
 
-	private final SimpMessagingTemplate template;
 	private final DockerTopService dockerTopService;
 
 	@Autowired
-	StatsWebsocketController(final SimpMessagingTemplate template, final DockerTopService dockerTopService) {
-		this.template = template;
+	StatsWebsocketController(final DockerTopService dockerTopService) {
 		this.dockerTopService = dockerTopService;
 	}
 
 	@MessageMapping("/start")
-	public void startSendingStats() {
+	public void startSendingStats(String dockerImage) {
 		try {
-			this.dockerTopService.start(this.template, "/docker/stats");
+			this.dockerTopService.start("/docker/stats", dockerImage);
 		} catch (DockerException e) {
 			LOGGER.error("An error occurred!", e);
 		}
@@ -41,7 +38,7 @@ public class StatsWebsocketController {
 	@MessageMapping("/stop")
 	public void stop() {
 		try {
-			this.dockerTopService.stop(this.template, "/docker/stopped");
+			this.dockerTopService.stop("/docker/stopped");
 		} catch (DockerException e) {
 			LOGGER.error("An error occurred!", e);
 		}

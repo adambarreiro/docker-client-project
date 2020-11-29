@@ -61,7 +61,7 @@ Websockets were chosen for this use case because they provide real time updates 
 is quite nice.
 
 In the current implementation, only one socket can be handled simultaneously as the pool is limited to 1
-thread, and the container name is always the same. This can be easily changed, anyway.
+thread. This can be easily changed, though.
 
 ## Testing
 
@@ -89,4 +89,4 @@ docker.images().pull("ubuntu","latest").create().start();
 - Missing some Docker API endpoints (only the required for the ubuntu-stats-app are available).
 - Security on websocket communication.
 - Vue code can be improved, specially the formatting of top command.
-- Make the app more generic: Allow more than 1 client, more containers, not only Ubuntu... etc.
+- Allow more than 1 container to be started.

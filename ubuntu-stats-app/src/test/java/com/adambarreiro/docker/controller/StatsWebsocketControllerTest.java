@@ -57,7 +57,7 @@ class StatsWebsocketControllerTest {
 		session.subscribe("/docker/stopped", this.subscriber(stoppedLatch));
 
 		// When:
-		session.send("/start", "");
+		session.send("/start", "ubuntu:latest");
 
 		// Then:
 		if (!statsLatch.await(10, TimeUnit.SECONDS)) {

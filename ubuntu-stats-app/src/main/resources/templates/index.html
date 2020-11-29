@@ -13,7 +13,8 @@
     <div id="app">
         <h1>Container stats</h1>
         <div id="buttons">
-            <p><button @click="start">Restart</button></p>
+            <p><label>Image:<br/><input v-model="image" placeholder="image:tag"></label></p>
+            <p><button @click="start">Start a {{image}} container</button></p>
             <p><button @click="stop">Stop container</button></p>
         </div>
         <div id="shell">

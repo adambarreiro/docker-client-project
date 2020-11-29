@@ -12,47 +12,46 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 @Service
-public class UbuntuDockerTopService implements DockerTopService {
+public class SingleDockerTopService implements DockerTopService {
 
-	private static final String IMAGE_NAME = "ubuntu";
-	private static final String IMAGE_TAG = "latest";
-	private static final String CONTAINER_NAME = "ubuntu-top";
 	private static final String COMMAND_NAME = "top";
 
 	private final Docker docker;
 	private final ExecutorService executorService;
+	private final SimpMessagingTemplate template;
 
 	private Future<Object> topCommand = null;
 	private String containerId = null;
 	private DockerResponse execOutput = null;
 
 	@Autowired
-	public UbuntuDockerTopService(final Docker docker) {
+	public SingleDockerTopService(final Docker docker, final SimpMessagingTemplate template) {
 		this.docker = docker;
+		this.template = template;
 		this.executorService = Executors.newScheduledThreadPool(1);
 	}
 
 	@Override
-	public void start(final SimpMessagingTemplate template, final String socketEndpoint) throws DockerException {
+	public void start(final String socketEndpoint, final String dockerImage) throws DockerException {
 		if (this.topCommand == null) {
-			this.execOutput = this.execTopInUbuntu();
+			this.execOutput = this.execTop(socketEndpoint, dockerImage);
 			this.topCommand = this.executorService.submit(() -> {
 				while (true) {
 					this.execOutput.getContent().lines().forEach(
-							line -> template.convertAndSend(socketEndpoint, line));
+							line -> this.template.convertAndSend(socketEndpoint, line));
 				}
 			});
 		}
 	}
 
 	@Override
-	public void stop(final SimpMessagingTemplate template, final String socketEndpoint) throws DockerException {
+	public void stop(final String socketEndpoint) throws DockerException {
 		if (this.topCommand != null) {
 			this.topCommand.cancel(true);
 			this.topCommand = null;
 			this.removeContainers();
 			this.execOutput.close();
-			template.convertAndSend(socketEndpoint, this.containerId);
+			this.template.convertAndSend(socketEndpoint, this.containerId);
 		}
 	}
 
@@ -63,12 +62,19 @@ public class UbuntuDockerTopService implements DockerTopService {
 	 * @return the client response, that contains a stream of the container results.
 	 * @throws DockerException if something goes wrong.
 	 */
-	private DockerResponse execTopInUbuntu() throws DockerException {
-		this.docker.images().pull(IMAGE_NAME, IMAGE_TAG);
-		this.containerId = this.docker.containers().create(CONTAINER_NAME, String.format("%s:%s", IMAGE_NAME, IMAGE_TAG));
-		this.docker.containers().start(this.containerId);
-		String execId = this.docker.containers().exec(this.containerId, COMMAND_NAME);
-		return this.docker.execs().startInteractive(execId);
+	private DockerResponse execTop(final String socketEndpoint, final String dockerImage) throws DockerException {
+		try {
+			final String image = dockerImage.split(":")[0];
+			final String tag = dockerImage.split(":")[1];
+			this.docker.images().pull(image, tag);
+			this.containerId = this.docker.containers().create(String.format("%s-%s",image,COMMAND_NAME), dockerImage);
+			this.docker.containers().start(this.containerId);
+			final String execId = this.docker.containers().exec(this.containerId, COMMAND_NAME);
+			return this.docker.execs().startInteractive(execId);
+		} catch (DockerException e) {
+			this.template.convertAndSend(socketEndpoint, String.format("Exception: %s", e.getMessage()));
+			throw e;
+		}
 	}
 
 	/**

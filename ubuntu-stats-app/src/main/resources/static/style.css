@@ -1,5 +1,6 @@
 body {
     background-color: black;
+    font-family: "Arial", "Helvetica";
 }
 
 h1 {
@@ -16,12 +17,21 @@ h1 {
     font-family: "Courier New";
     background-color: black;
     color: white;
-    width: 90%;
+    width: 80%;
 }
 
 #buttons {
     float: right;
-    width: 100px;
+    width: 200px;
+}
+
+#buttons label {
+    color: white;
+    text-align: center;
+}
+
+#buttons input {
+    border: 0px;
 }
 
 #buttons button {

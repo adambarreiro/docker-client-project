@@ -88,5 +88,5 @@ docker.images().pull("ubuntu","latest").create().start();
 ```
 - Missing some Docker API endpoints (only the required for the ubuntu-stats-app are available).
 - Security on websocket communication.
-- Vue code can be improved, specially the formatting of top command.
+- `top` command output handling can be improved, right now the UI is parsing it instead of just printing a structured JSON.
 - Allow more than 1 container to be started.

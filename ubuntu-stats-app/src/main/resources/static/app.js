@@ -22,7 +22,7 @@ var app = new Vue({
                     stompClient.connect({}, function(frame) {
                         stompClient.subscribe('/docker/stats', function(value) {
                             app.placeholder = "$ docker run -it "+app.running+" top";
-                            transform(topResults, value.body);
+                            updateStats(topResults, value.body);
                         });
                         stompClient.send("/start", {}, app.running);
                     });
@@ -46,27 +46,44 @@ var app = new Vue({
     }
 });
 
-// Prints Top command on screen
-let transform = function(topResults, input) {
-    let sanitized = input.replaceAll(/�|\(B||\[m|\[H|\[39;49m|\[\?1h|\[2J|\[\?25l|\[K|\[7m|\[J|\[1m|=/g, " ").trim();
-    if (sanitized.indexOf('OCI runtime exec failed') > -1) {
+// Updates "stats" variable with the input retrieved from the websocket.
+let updateStats = function(topResults, input) {
+    let sanitizedTopLine = input.replaceAll(/�|\(B||\[m|\[H|\[39;49m|\[\?1h|\[2J|\[\?25l|\[K|\[7m|\[J|\[1m|=/g, " ").trim();
+    if (sanitizedTopLine.indexOf('OCI runtime exec failed') > -1) {
         app.placeholder = "Looks like " + app.running + " doesn't have top command!";
         app.stats = "";
         app.running = "";
-    } else if (sanitized.indexOf("Exception") > -1) {
-        app.placeholder = sanitized;
+    } else if (sanitizedTopLine.indexOf("Exception") > -1) {
+        app.placeholder = sanitizedTopLine;
         app.stats = "";
         app.running = "";
     } else {
-        let firstWord = sanitized.split(' ')[0];
-        let secondWord = sanitized.split(' ')[1];
+        let firstWord = sanitizedTopLine.split(' ')[0];
+        let secondWord = sanitizedTopLine.split(' ')[1];
         let key = firstWord.charAt(0) + (secondWord !== undefined ? secondWord.charAt(0) : "");
-        topResults[key] = sanitized;
-        app.stats = topResults["t-"] + "<br/>" + topResults['T'] + "<br/>" + topResults['%']+ "<br/>"+topResults['MM']+ "<br/>"+topResults['MS']+ "<br/><br/>"+topResults['PU']+"<br/>";
-        for (key in topResults) {
-            if (/^\d/.test(key)) {
-                app.stats += topResults[key]+ "<br/>";
-            }
+        topResults[key] = sanitizedTopLine;
+        topStructuredStatsUpdate(topResults);
+    }
+}
+
+// Structures the top command to print it correctly on screen.
+let topStructuredStatsUpdate = function (topResults) {
+    let unrecognizedLine = "<i>Unrecognized output</i>";
+    let topLine = topResults["t-"] || unrecognizedLine;
+    let tasksLine = topResults['T'] || topResults['La'] || unrecognizedLine;
+    let cpuLine = topResults['%'] || topResults['C'] || unrecognizedLine;
+    let memoryLine = topResults['MM'] || topResults['KM'] || unrecognizedLine;
+    let swapLine = topResults['MS'] || topResults['KS'] || unrecognizedLine;
+    let processHeader = topResults['PU'] || topResults['P'] || unrecognizedLine;
+    app.stats = topLine + "<br/>" +
+        tasksLine + "<br/>" +
+        cpuLine + "<br/>"+
+        memoryLine + "<br/>"+
+        swapLine + "<br/><br/>"+
+        processHeader+"<br/>";
+    for (key in topResults) {
+        if (/^\d/.test(key)) {
+            app.stats += topResults[key]+ "<br/>";
         }
     }
 }

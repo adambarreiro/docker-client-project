@@ -60,7 +60,7 @@ class StatsWebsocketControllerTest {
 		session.send("/start", "ubuntu:latest");
 
 		// Then:
-		if (!statsLatch.await(10, TimeUnit.SECONDS)) {
+		if (!statsLatch.await(30, TimeUnit.SECONDS)) {
 			fail("Stats not received");
 		}
 
@@ -68,7 +68,7 @@ class StatsWebsocketControllerTest {
 		session.send("/stop", "");
 
 		// Then:
-		if (!stoppedLatch.await(10, TimeUnit.SECONDS)) {
+		if (!stoppedLatch.await(30, TimeUnit.SECONDS)) {
 			fail("Stopped notification not received");
 		}
 	}

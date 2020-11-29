@@ -38,11 +38,14 @@ public class HttpDockerContainersTest {
 	@Test
 	@DisplayName("A non valid container creation returns its ID")
 	public void nonValidContainerCreationReturnsItsIdTest() throws DockerException {
-		// Given:
-		DockerContainers httpDockerContainers = new HttpDocker(createMockClient("/containers/create", 400)).containers();
-		// Then:
-		assertThrows(DockerException.class, () -> httpDockerContainers.create("ubuntu1","ubuntu:latest"));
-		verify(response, times(1)).close();
+		int[] statusCodes = {400, 404, 409, 500};
+		for (int statusCode : statusCodes) {
+			// Given:
+			DockerContainers httpDockerContainers = new HttpDocker(createMockClient("/containers/create", statusCode)).containers();
+			// Then:
+			assertThrows(DockerException.class, () -> httpDockerContainers.create("ubuntu1","ubuntu:latest"));
+			verify(response, times(1)).close();
+		}
 	}
 
 	@Test
@@ -60,13 +63,16 @@ public class HttpDockerContainersTest {
 	@Test
 	@DisplayName("A non valid container ID starts throws an exception")
 	public void nonValidContainerIdStartsValidContainer() throws DockerException {
-		// Given:
-		String containerId = "123";
-		DockerContainers httpDockerContainers = new HttpDocker(createMockClient(
-				String.format("/containers/%s/start", containerId), 404)).containers();
-		// Then:
-		assertThrows(DockerException.class, () -> httpDockerContainers.start("123"));
-		verify(response, times(1)).close();
+		int[] statusCodes = {404, 500};
+		for (int statusCode : statusCodes) {
+			// Given:
+			String containerId = "123";
+			DockerContainers httpDockerContainers = new HttpDocker(createMockClient(
+					String.format("/containers/%s/start", containerId), statusCode)).containers();
+			// Then:
+			assertThrows(DockerException.class, () -> httpDockerContainers.start("123"));
+			verify(response, times(1)).close();
+		}
 	}
 
 	@Test
@@ -84,13 +90,16 @@ public class HttpDockerContainersTest {
 	@Test
 	@DisplayName("A non valid container ID is stopped so an exception is thrown")
 	public void stoppingNonValidContainerIdTest() throws DockerException {
-		// Given:
-		String containerId = "123asdasdsd";
-		DockerContainers httpDockerContainers = new HttpDocker(createMockClient(
-				String.format("/containers/%s/stop", containerId), 404)).containers();
-		// Then:
-		assertThrows(DockerException.class, () -> httpDockerContainers.stop(containerId));
-		verify(response, times(1)).close();
+		int[] statusCodes = {404, 500};
+		for (int statusCode : statusCodes) {
+			// Given:
+			String containerId = "123asdasdsd";
+			DockerContainers httpDockerContainers = new HttpDocker(createMockClient(
+					String.format("/containers/%s/stop", containerId), statusCode)).containers();
+			// Then:
+			assertThrows(DockerException.class, () -> httpDockerContainers.stop(containerId));
+			verify(response, times(1)).close();
+		}
 	}
 
 	@Test
@@ -128,13 +137,16 @@ public class HttpDockerContainersTest {
 	@Test
 	@DisplayName("Executing a command in a non valid container ID throws an exception")
 	public void executingCommandInNonValidContainerIdThrowsExceptionTest() throws DockerException {
-		// Given:
-		String containerId = "123asdadssad";
-		DockerContainers httpDockerContainers = new HttpDocker(createMockClient(
-				String.format("/containers/%s/exec", containerId), 404)).containers();
-		// Then:
-		assertThrows(DockerException.class, () -> httpDockerContainers.exec(containerId, "top"));
-		verify(response, times(1)).close();
+		int[] statusCodes = {404, 409, 500};
+		for (int statusCode : statusCodes) {
+			// Given:
+			String containerId = "123asdadssad";
+			DockerContainers httpDockerContainers = new HttpDocker(createMockClient(
+					String.format("/containers/%s/exec", containerId), statusCode)).containers();
+			// Then:
+			assertThrows(DockerException.class, () -> httpDockerContainers.exec(containerId, "top"));
+			verify(response, times(1)).close();
+		}
 	}
 
 	@Test
@@ -152,13 +164,16 @@ public class HttpDockerContainersTest {
 	@Test
 	@DisplayName("Removing a non valid container throws an exception")
 	public void removingAValidContainerThrowsAnExceptionTest() throws DockerException {
-		// Given:
-		String containerId = "123asdadssad";
-		DockerContainers httpDockerContainers = new HttpDocker(createMockClient(
-				String.format("/containers/%s", containerId), 400)).containers();
-		// Then:
-		assertThrows(DockerException.class, () -> httpDockerContainers.remove(containerId));
-		verify(response, times(1)).close();
+		int[] statusCodes = {400, 404, 409, 500};
+		for (int statusCode : statusCodes) {
+			// Given:
+			String containerId = "123asdadssad";
+			DockerContainers httpDockerContainers = new HttpDocker(createMockClient(
+					String.format("/containers/%s", containerId), statusCode)).containers();
+			// Then:
+			assertThrows(DockerException.class, () -> httpDockerContainers.remove(containerId));
+			verify(response, times(1)).close();
+		}
 	}
 	
 	private DockerHttpClient createMockClient(String endpoint, int statusCode) throws DockerException {

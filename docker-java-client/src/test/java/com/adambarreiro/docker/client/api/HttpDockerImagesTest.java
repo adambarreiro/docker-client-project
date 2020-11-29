@@ -1,9 +1,6 @@
 package com.adambarreiro.docker.client.api;
 
-import com.adambarreiro.docker.client.api.http.HttpDockerContainers;
 import com.adambarreiro.docker.client.api.http.HttpDocker;
-import com.adambarreiro.docker.client.api.http.HttpDockerExecs;
-import com.adambarreiro.docker.client.api.http.HttpDockerImages;
 import com.adambarreiro.docker.client.exception.DockerException;
 import com.adambarreiro.docker.client.http.DockerHttpDockerResponse;
 import com.adambarreiro.docker.client.http.client.DockerHttpClient;
@@ -36,12 +33,15 @@ public class HttpDockerImagesTest {
 	@Test
 	@DisplayName("Non existent image is pulled and exception is thrown")
 	public void nonExistentImageIsPulledAndExceptionIsThrown() throws DockerException {
-		// Given:
-		DockerImages httpDockerImages = new HttpDocker(createMockClient("/images/create", 404)).images();
+		int[] statusCodes = {404, 500};
+		for (int statusCode : statusCodes) {
+			// Given:
+			DockerImages httpDockerImages = new HttpDocker(createMockClient("/images/create", statusCode)).images();
 
-		// Then:
-		assertThrows(DockerException.class, () -> httpDockerImages.pull("ubuntu","latest"));
-		verify(response, times(1)).close();
+			// Then:
+			assertThrows(DockerException.class, () -> httpDockerImages.pull("ubuntu", "latest"));
+			verify(response, times(1)).close();
+		}
 	}
 
 	private DockerHttpClient createMockClient(String endpoint, int statusCode) throws DockerException {

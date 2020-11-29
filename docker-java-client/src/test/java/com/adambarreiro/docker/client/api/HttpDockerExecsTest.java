@@ -36,13 +36,16 @@ public class HttpDockerExecsTest {
 	@Test
 	@DisplayName("Non existent exec throws an exception")
 	public void nonExistentExecThrowsAnExceptionTest() throws DockerException {
-		// Given:
-		String execId = "1gh234f345gfj3";
-		DockerExecs httpDockerExecs = new HttpDocker(createMockClient(String.format("/exec/%s/start",execId), 404)).execs();
+		int[] statusCodes = {404, 409};
+		for (int statusCode : statusCodes) {
+			// Given:
+			String execId = "1gh234f345gfj3";
+			DockerExecs httpDockerExecs = new HttpDocker(createMockClient(String.format("/exec/%s/start", execId), statusCode)).execs();
 
-		// Then:
-		assertThrows(DockerException.class, () -> httpDockerExecs.startInteractive(execId));
-		verify(response, times(1)).close();
+			// Then:
+			assertThrows(DockerException.class, () -> httpDockerExecs.startInteractive(execId));
+			verify(response, times(1)).close();
+		}
 	}
 
 	private DockerHttpClient createMockClient(String endpoint, int statusCode) throws DockerException {

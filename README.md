@@ -2,7 +2,7 @@
 
 The project has two Maven modules:
 - **docker-java-client**: Java client to consume the Docker API methods.
-- **ubuntu-stats-app**: Web application that serves the Ubuntu CPU/Memory stats to a simple web UI.
+- **docker-stats-app**: Web application that serves container CPU/Memory stats to a simple web UI.
 
 Both components are using Spring Boot.
 
@@ -47,7 +47,7 @@ The API methods available in the client are fully documented in their respective
 look [here](docker-java-client/src/main/java/com/adambarreiro/docker/client/api). As the API is huge, only a few
 methods have been implemented, but adding new ones is fairly easy.
 
-## ubuntu-stats-app
+## docker-stats-app
 
 This Spring Boot application offers a simple UI made with a small component done with a few features from [Vue.js](https://vuejs.org/),
 as it extremely easy to render the displayed information dynamically with that framework.
@@ -65,7 +65,7 @@ thread. This can be easily changed, though.
 
 ## Testing
 
-Both modules have unit testing and the `ubuntu-stats-app` has also integration tests that **require you to have
+Both modules have unit testing and the `docker-stats-app` has also integration tests that **require you to have
 the Docker engine running**.
 
 ## Usage
@@ -84,9 +84,9 @@ Please execute these commands depending on what you would like to do:
 
 - Would be nice to refactor the Docker client to implement a more fluid API (builder pattern), for example:
 ```
-docker.images().pull("ubuntu","latest").create().start();
+docker.images().pull("node","latest").create().start();
 ```
-- Missing some Docker API endpoints (only the required for the ubuntu-stats-app are available).
+- Missing some Docker API endpoints (only the required for the docker-stats-app are available).
 - Security on websocket communication.
 - `top` command output handling can be improved, right now the UI is parsing it instead of just printing a structured JSON.
 - Allow more than 1 container to be started.

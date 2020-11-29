@@ -56,7 +56,7 @@ public class SingleDockerTopService implements DockerTopService {
 	}
 
 	/**
-	 * This is the main scenario. Pulling an Ubuntu image, creating a container,
+	 * This is the main scenario. Pulling an image, creating a container,
 	 * executing top on it and returning the results.
 	 *
 	 * @return the client response, that contains a stream of the container results.

@@ -21,7 +21,7 @@
 
 	<modules>
         <module>docker-java-client</module>
-        <module>ubuntu-stats-app</module>
+        <module>docker-stats-app</module>
     </modules>
 
 	<dependencies>

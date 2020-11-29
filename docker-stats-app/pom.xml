@@ -8,7 +8,7 @@
 		<version>1.0.0</version>
 	</parent>
 
-	<artifactId>ubuntu-stats-app</artifactId>
+	<artifactId>docker-stats-app</artifactId>
 	<version>1.0.0</version>
 
 	<dependencies>

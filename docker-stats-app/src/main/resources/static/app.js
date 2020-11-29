@@ -15,7 +15,11 @@ var app = new Vue({
         start: function() {
             let topResults = {};
             if (this.running === "") {
-                if (this.image.split(":")[0] !== "" && this.image.split(":")[1] !== "") {
+                console.log(this.image);
+                if (this.image.split(":")[0] !== "" &&
+                    this.image.split(":")[1] !== undefined &&
+                    this.image.split(":")[1] !== "") {
+
                     this.running = this.image;
                     this.placeholder = "Loading...";
                     stompClient = Stomp.over(new SockJS('/socket'));

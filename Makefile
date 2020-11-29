@@ -1,7 +1,7 @@
 jacocoReportPath := "target/site/jacoco/index.html"
 checkstyleReportPath := "target/site/checkstyle.html"
 dockerClientModule := "docker-java-client"
-ubuntuStatsApp := "ubuntu-stats-app"
+dockerStatsApp := "docker-stats-app"
 mvn := "./mvnw"
 
 .PHONY: build
@@ -11,7 +11,7 @@ build: check
 .PHONY: run
 run: check
 	@echo 'Once the application starts, open http://localhost:8080'
-	@java -Xmx512m -Xms256m -jar $(ubuntuStatsApp)/target/ubuntu-stats-app-*.jar
+	@java -Xmx512m -Xms256m -jar $(dockerStatsApp)/target/docker-stats-app-*.jar
 
 .PHONY: test
 test: check clean
@@ -19,9 +19,9 @@ test: check clean
 
 .PHONY: coverage-check
 coverage-check: check
-	@if [[ ! -f "$(dockerClientModule)/$(jacocoReportPath)" ]] || [[ ! -f "$(ubuntuStatsApp)/$(jacocoReportPath)" ]]; then $(mvn) clean install; fi
+	@if [[ ! -f "$(dockerClientModule)/$(jacocoReportPath)" ]] || [[ ! -f "$(dockerStatsApp)/$(jacocoReportPath)" ]]; then $(mvn) clean install; fi
 	@open $(dockerClientModule)/$(jacocoReportPath) &
-	@open $(ubuntuStatsApp)/$(jacocoReportPath) &
+	@open $(dockerStatsApp)/$(jacocoReportPath) &
 
 .PHONY: bugs
 bugs: check

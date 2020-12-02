@@ -17,8 +17,8 @@ run: check
 test: check clean
 	@$(mvn) test
 
-.PHONY: coverage-check
-coverage-check: check
+.PHONY: coverage-report
+coverage-report: report
 	@if [[ ! -f "$(dockerClientModule)/$(jacocoReportPath)" ]] || [[ ! -f "$(dockerStatsApp)/$(jacocoReportPath)" ]]; then $(mvn) clean install; fi
 	@open $(dockerClientModule)/$(jacocoReportPath) &
 	@open $(dockerStatsApp)/$(jacocoReportPath) &
